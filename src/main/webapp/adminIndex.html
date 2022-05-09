@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Admin Index</title>
+    <script src="js/jquery.min.js" type="text/javascript"></script>
+    <script type="text/javascript">
+        function create() {
+            $.post("admin/user", {name: $("#name").val(), password: $("#password").val()}, function (result) {
+                if (result) {
+                    location.href="adminIndex.html"
+                } else {
+                    alert("name existed or you must login as admin first")
+                }
+            })
+        }
+        $(function () {
+            $.get("admin/users/", {}, function (list) {
+                $.each(list, function (i, e) {
+                    $("#userList").append(`
+                        <tr>
+                            <td>${e.id}</td>
+                            <td>${e.name}</td>
+                            <td>
+                                <a href="#" onclick="del(${e.id})">delete</a>
+                            </td>
+                        </tr>
+                    `)
+                })
+            })
+        })
+
+        function del(id) {
+            if (confirm("Delete the User?")) {
+                $.ajax({
+                    url: "admin/user/" + id,
+                    type: "delete",
+                    success: function (result) {
+                        alert(result ? "delete success" : "delete fail")
+                        location.href = "adminIndex.html"
+                    }
+                })
+            }
+        }
+    </script>
+</head>
+<body>
+<label>
+    Name:
+    <input id="name" type="text">
+</label>
+<br/>
+<label>
+    Password:
+    <input id="password" type="password">
+</label>
+<br/>
+<button onclick="create()">create user</button>
+<table id="userList">
+    <tr>
+        <th>User ID</th>
+        <th>User Name</th>
+        <th>Operation</th>
+    </tr>
+</table>
+</body>
+</html>

@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>User Index</title>
+  <script src="js/jquery.min.js" type="text/javascript"></script>
+  <script type="text/javascript">
+    function createAuction() {
+      $.post("user/auction", {description: $("#description").val(), type: $("#type").val(), price: $("#price").val(), time: $("#time").val()}, function (result) {
+        if (result) {
+          location.href="userIndex.html"
+        } else {
+          alert("create auction fail")
+        }
+      })
+    }
+    $(function () {
+      $.get("user/auctions", {}, function (list) {
+        $.each(list, function (i, e) {
+          $("#auctionList").append(`
+                        <tr>
+                            <td>${e.id}</td>
+                            <td>${e.description}</td>
+                            <td>${e.lastBidPrice}</td>
+                            <td>${new Date(e.closingTime)}</td>
+                            <td>
+                                <a href="#" onclick="showHis(${e.id})">history</a>
+                                <a href="#" onclick="bid(${e.id})">bid</a>
+                            </td>
+                        </tr>
+                    `)
+        })
+      })
+      $.get("user/auction/my", {}, function (list) {
+        $.each(list, function (i, e) {
+          $("#myAuctionList").append(`
+                        <tr>
+                            <td>${e.id}</td>
+                            <td>${e.description}</td>
+                            <td>${e.lastBidPrice}</td>
+                            <td>${new Date(e.closingTime)}</td>
+                            <td>
+                                <a href="#" onclick="delAuction(${e.id})">delete</a>
+                            </td>
+                        </tr>
+                    `)
+        })
+      })
+      $.get("user/bid/my", {}, function (list) {
+        $.each(list, function (i, e) {
+          $("#myBidList").append(`
+                        <tr>
+                            <td>${e.id}</td>
+                            <td>${e.auction}</td>
+                            <td>${e.price}</td>
+                            <td>${new Date(e.time)}</td>
+                            <td>
+                                <a href="#" onclick="delBid(${e.id})">delete</a>
+                            </td>
+                        </tr>
+                    `)
+        })
+      })
+    })
+
+    function AuctionsByType() {
+      $.get("user/auctionsByType", {}, function (list) {
+        $("#auctionList").html(`
+          <tr>
+            <th>Auction ID</th>
+            <th>Auction Description</th>
+            <th>Auction Price</th>
+            <th>Auction ClosingDate</th>
+            <th>Operation</th>
+          </tr>
+        `)
+        $.each(list, function (i, e) {
+          $("#auctionList").append(`
+                        <tr>
+                            <td>${e.id}</td>
+                            <td>${e.description}</td>
+                            <td>${e.lastBidPrice}</td>
+                            <td>${new Date(e.closingTime)}</td>
+                            <td>
+                                <a href="#" onclick="showHis(${e.id})">history</a>
+                                <a href="#" onclick="bid(${e.id})">bid</a>
+                            </td>
+                        </tr>
+                    `)
+        })
+      })
+    }
+
+    function AuctionsByPrice() {
+      $.get("user/auctionsByPrice", {}, function (list) {
+        $("#auctionList").html(`
+          <tr>
+            <th>Auction ID</th>
+            <th>Auction Description</th>
+            <th>Auction Price</th>
+            <th>Auction ClosingDate</th>
+            <th>Operation</th>
+          </tr>
+        `)
+        $.each(list, function (i, e) {
+          $("#auctionList").append(`
+                        <tr>
+                            <td>${e.id}</td>
+                            <td>${e.description}</td>
+                            <td>${e.lastBidPrice}</td>
+                            <td>${new Date(e.closingTime)}</td>
+                            <td>
+                                <a href="#" onclick="showHis(${e.id})">history</a>
+                                <a href="#" onclick="bid(${e.id})">bid</a>
+                            </td>
+                        </tr>
+                    `)
+        })
+      })
+    }
+    function showHis(auction) {
+      $.get("user/bid/"+auction, {}, function (list) {
+        var text = ""
+        $.each(list, function (i, e) {
+          text += e.price + " - " + new Date(e.time) + "\n"
+        })
+        confirm(text)
+      })
+    }
+    function bid(id) {
+      var p = prompt("price", 0)
+      if (p != null) {
+        $.post("user/bid", {auction: id, price: p}, function (result) {
+          if (result) {
+            location.href="userIndex.html"
+          } else {
+            alert("bid fail")
+          }
+        })
+      }
+    }
+    function delAuction(id) {
+      if (confirm("Delete the Auction?")) {
+        $.ajax({
+          url: "user/auction/" + id,
+          type: "delete",
+          success: function (result) {
+            alert(result ? "delete success" : "delete fail")
+            location.href = "userIndex.html"
+          }
+        })
+      }
+    }
+    function delBid(id) {
+      if (confirm("Delete the Auction?")) {
+        $.ajax({
+          url: "user/bid/" + id,
+          type: "delete",
+          success: function (result) {
+            alert(result ? "delete success" : "delete fail")
+            location.href = "userIndex.html"
+          }
+        })
+      }
+    }
+  </script>
+</head>
+<body>
+<label>
+  Description:
+  <input id="description" type="text">
+</label>
+<br/>
+<label>
+  Type:
+  <input id="type" type="text">
+</label>
+<br/>
+<label>
+  Price:
+  <input id="price" type="text">
+</label>
+<br/>
+<label>
+  Closing Time:
+  <input id="time" type="text">
+</label>
+<br/>
+<button onclick="createAuction()">create auction</button>
+<h2>All auctions</h2>
+<a href="#" onclick="AuctionsByType()">By Type</a>
+<a href="#" onclick="AuctionsByPrice()">By Price</a>
+<table id="auctionList">
+  <tr>
+    <th>Auction ID</th>
+    <th>Auction Description</th>
+    <th>Auction Price</th>
+    <th>Auction ClosingDate</th>
+    <th>Operation</th>
+  </tr>
+</table>
+<h2>my auctions</h2>
+<table id="myAuctionList">
+  <tr>
+    <th>Auction ID</th>
+    <th>Auction Description</th>
+    <th>Auction Price</th>
+    <th>Auction ClosingDate</th>
+    <th>Operation</th>
+  </tr>
+</table>
+<h2>my bids</h2>
+<table id="myBidList">
+  <tr>
+    <th>Bid ID</th>
+    <th>Auction ID</th>
+    <th>Bid Price</th>
+    <th>Bid Time</th>
+    <th>Operation</th>
+  </tr>
+</table>
+</body>
+</html>

@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Admin Login</title>
+    <script src="js/jquery.min.js" type="text/javascript"></script>
+    <script type="text/javascript">
+        function submit() {
+            $.post("adminLogin", {name: $("#name").val(), password: $("#password").val()}, function (result) {
+                if (result) {
+                    location.href="adminIndex.html"
+                } else {
+                    alert("name or password error")
+                }
+            })
+        }
+    </script>
+</head>
+<body>
+<label>
+    Name:
+    <input id="name" type="text">
+</label>
+<br/>
+<label>
+    Password:
+    <input id="password" type="password">
+</label>
+<br/>
+<button onclick="submit()">Log in</button>
+</body>
+</html>
